@@ -1,106 +1,49 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabaseClient';
-import { Routine, Activity, Action } from '../types';
+import { BetHistoryItem, DashboardStats } from '../types';
 
 const DashboardPage = () => {
     const navigate = useNavigate();
     const { user, signOut } = useAuth();
-    const [routines, setRoutines] = useState<Routine[]>([]);
-    const [loadingRoutines, setLoadingRoutines] = useState(true);
-    const [newRoutineName, setNewRoutineName] = useState('');
-    const [showCreateRoutine, setShowCreateRoutine] = useState(false);
     const [profile, setProfile] = useState<any>(null);
-    const [activities, setActivities] = useState<Activity[]>([]);
-    const [actions, setActions] = useState<Action[]>([]);
-    const [newActivityName, setNewActivityName] = useState('');
-    const [showCreateActivity, setShowCreateActivity] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    // Mock data for betting metrics
+    const [stats] = useState<DashboardStats>({
+        won: 15,
+        lost: 8,
+        moneyLost: "S/ 120.00",
+        moneyPaid: "S/ 450.00",
+        payable: "S/ 50.00",
+        receivable: "S/ 210.00",
+        percentile: 88,
+        riskScore: 65
+    });
+
+    const [betHistory] = useState<BetHistoryItem[]>([
+        { id: '1', event: '¿Crecimiento PBI Perú > 3%?', counterparty: 'Juan Perez', amount: 'S/ 50.00', status: 'winner', date: '2024-03-15' },
+        { id: '2', event: '¿Clasifica Perú al Mundial?', counterparty: 'Maria Garcia', amount: 'S/ 100.00', status: 'pending', date: '2024-03-14' },
+        { id: '3', event: '¿Renuncia Ministro de Economía?', counterparty: 'Carlos R.', amount: 'S/ 30.00', status: 'loser', date: '2024-03-10' },
+    ]);
 
     useEffect(() => {
         if (user) {
             fetchProfile();
-            fetchRoutines();
-            fetchActivities();
-            fetchActions();
+        } else {
+            setLoading(false);
         }
     }, [user]);
 
     const fetchProfile = async () => {
-        const { data } = await supabase.from('profiles').select('*').eq('id', user?.id).single();
-        setProfile(data);
-    };
-
-    const fetchRoutines = async () => {
         try {
-            const { data, error } = await supabase.from('routines').select('*').order('created_at', { ascending: false });
-            if (error) throw error;
-            setRoutines(data || []);
+            const { data } = await supabase.from('profiles').select('*').eq('id', user?.id).single();
+            setProfile(data);
         } catch (error) {
-            console.error('Error fetching routines:', error);
+            console.error('Error fetching profile:', error);
         } finally {
-            setLoadingRoutines(false);
-        }
-    };
-
-    const fetchActivities = async () => {
-        const { data } = await supabase.from('activities').select('*').order('created_at', { ascending: false });
-        setActivities(data || []);
-    };
-
-    const fetchActions = async () => {
-        const { data } = await supabase.from('actions')
-            .select('*, activities(name)')
-            .order('created_at', { ascending: false })
-            .limit(10);
-        setActions(data || []);
-    };
-
-    const handleCreateRoutine = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!user || !newRoutineName.trim()) return;
-
-        try {
-            const { data, error } = await supabase.from('routines').insert([
-                { user_id: user.id, name: newRoutineName, description: 'Creada desde el dashboard' }
-            ]).select();
-
-            if (error) throw error;
-
-            if (data) {
-                setRoutines([data[0], ...routines]);
-                setNewRoutineName('');
-                setShowCreateRoutine(false);
-            }
-        } catch (error) {
-            console.error('Error creating routine:', error);
-        }
-    };
-
-    const handleCreateActivity = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!user || !newActivityName.trim()) return;
-
-        const { data, error } = await supabase.from('activities').insert([
-            { user_id: user.id, name: newActivityName, description: 'Actividad personalizada' }
-        ]).select();
-
-        if (data) {
-            setActivities([data[0], ...activities]);
-            setNewActivityName('');
-            setShowCreateActivity(false);
-        }
-    };
-
-    const logAction = async (activityId: string) => {
-        if (!user) return;
-        const { data, error } = await supabase.from('actions').insert([
-            { user_id: user.id, activity_id: activityId, completed_at: new Date().toISOString() }
-        ]).select('*, activities(name)');
-
-        if (data) {
-            fetchActions();
+            setLoading(false);
         }
     };
 
@@ -110,153 +53,233 @@ const DashboardPage = () => {
     };
 
     return (
-        <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
-            <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#233c48] bg-[#111c22]/95 backdrop-blur-md px-10 py-3">
-                <div className="flex items-center gap-8 cursor-pointer" onClick={() => navigate('/')}>
-                    <div className="flex items-center gap-4 text-white">
-                        <div className="size-6 text-primary"><span className="material-symbols-outlined">analytics</span></div>
-                        <h2 className="text-white text-lg font-bold">tapuesto.ai</h2>
+        <div className="relative flex min-h-screen w-full flex-col bg-[#0d151a]">
+            {/* Header */}
+            <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#233c48] bg-[#111c22]/95 backdrop-blur-md px-6 md:px-10 py-3">
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+                    <div className="flex items-center justify-center size-8 rounded bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined">analytics</span>
                     </div>
+                    <h2 className="text-white text-lg font-bold">tapuesto.ai</h2>
                 </div>
-                <div className="flex flex-1 justify-end gap-8 items-center">
-                    <div className="hidden lg:flex items-center gap-9">
-                        <Link to="/dashboard" className="text-white hover:text-primary transition-colors text-sm font-medium">Panel</Link>
-                        <Link to="/leaderboard" className="text-[#92b7c9] hover:text-white transition-colors text-sm font-medium">Líderes</Link>
+
+                <nav className="hidden lg:flex items-center gap-8">
+                    <Link to="/panel" className="text-white hover:text-primary transition-colors text-sm font-medium border-b-2 border-primary pb-0.5">Mis Apuestas</Link>
+                    <Link to="/leaderboard" className="text-[#92b7c9] hover:text-white transition-colors text-sm font-medium">Clasificación</Link>
+                    <Link to="/mercados" className="text-[#92b7c9] hover:text-white transition-colors text-sm font-medium">Mercados</Link>
+                </nav>
+
+                <div className="flex items-center gap-4">
+                    <div className="hidden md:flex flex-col items-end mr-2">
+                        <span className="text-[10px] uppercase tracking-wider text-[#92b7c9] font-bold">Balance Disponible</span>
+                        <span className="text-sm font-black text-white">S/ 210.00</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="hidden md:flex flex-col items-end mr-2">
-                            <span className="text-xs text-[#92b7c9]">Balance</span>
-                            <span className="text-sm font-bold text-white">S/ 0.00</span>
-                        </div>
-                        <button onClick={handleSignOut} className="text-[#92b7c9] hover:text-white text-sm">Cerrar Sesión</button>
-                        <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-[#233c48] cursor-pointer" onClick={() => navigate('/profile')} style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBId-L4vJ-o2ldU5VGdA9-u3LX5Y30qZUoMAx6ZIULjyGwJQ4V_TA4BCBRJCsX80SxQt_geUydz9KgEJVzHYRY0oaWzfVRC6S5g9qK1z7TegkbIoAZh-yf7kWukLConhgDLFjljVvjswOC-FzZ6iaopiSbp4fldcsCkyNcJOW9RM2OgHgpIxKrKUoxp_wCYYgNrN_lvUwrP4jJHZAlDgDYCFlvWpsLWMFumvm68pyERNgDFGqwjrdLbjSJek48MAWJEzWNzJAWh1Ws")' }}></div>
+                    <button onClick={handleSignOut} className="text-[#92b7c9] hover:text-white text-sm transition-colors">Salir</button>
+                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20 cursor-pointer hover:border-primary/50 transition-all"
+                        onClick={() => navigate('/profile')}
+                        style={{ backgroundImage: `url(${profile?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'})` }}>
                     </div>
                 </div>
             </header>
-            <div className="flex-1 px-4 py-8 md:px-10 lg:px-20 xl:px-40 flex justify-center">
-                <div className="layout-content-container flex flex-col max-w-[1280px] flex-1 gap-8">
-                    <h1 className="text-white text-[28px] md:text-[32px] font-bold leading-tight text-left">
-                        Bienvenido de nuevo, {profile?.nickname || user?.email || 'Usuario'}.
-                    </h1>
 
-                    {/* Routines Section */}
-                    <div className="flex flex-col gap-4">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-white text-[22px] font-bold">Mis Rutinas</h2>
-                            <button
-                                className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
-                                onClick={() => setShowCreateRoutine(!showCreateRoutine)}
-                            >
-                                {showCreateRoutine ? 'Cancelar' : '+ Nueva Rutina'}
-                            </button>
+            <main className="flex-1 px-4 py-8 md:px-10 lg:px-20 max-w-[1400px] mx-auto w-full">
+                <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="px-2 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest">Inversor Pro</span>
                         </div>
-
-                        {showCreateRoutine && (
-                            <form onSubmit={handleCreateRoutine} className="bg-[#233c48] p-4 rounded-lg border border-[#2d4a58] flex gap-2">
-                                <input
-                                    type="text"
-                                    value={newRoutineName}
-                                    onChange={(e) => setNewRoutineName(e.target.value)}
-                                    placeholder="Nombre de la rutina..."
-                                    className="flex-1 bg-[#1e343f] text-white border border-[#2d4a58] rounded px-3 py-2 outline-none focus:border-primary"
-                                />
-                                <button type="submit" className="bg-success hover:bg-success/90 text-black font-bold px-4 py-2 rounded">
-                                    Guardar
-                                </button>
-                            </form>
-                        )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {loadingRoutines ? (
-                                <p className="text-[#92b7c9]">Cargando rutinas...</p>
-                            ) : routines.length === 0 ? (
-                                <p className="text-[#92b7c9]">No tienes rutinas creadas.</p>
-                            ) : (
-                                routines.map((routine) => (
-                                    <div key={routine.id} className="bg-[#233c48] p-4 rounded-lg border border-white/5 shadow-sm hover:border-primary/50 transition-colors cursor-pointer group">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <h3 className="text-white font-bold text-lg group-hover:text-primary transition-colors">{routine.name}</h3>
-                                            <span className="material-symbols-outlined text-[#92b7c9]">fitness_center</span>
-                                        </div>
-                                        <p className="text-[#92b7c9] text-sm line-clamp-2">{routine.description || "Sin descripción"}</p>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                        <h1 className="text-white text-3xl md:text-4xl font-black">
+                            ¡Hola, {profile?.nickname || 'Usuario'}! 💸
+                        </h1>
+                        <p className="text-[#92b7c9] mt-2">Aquí tienes el resumen de tu rendimiento en el mercado.</p>
                     </div>
 
-                    {/* Activities Section */}
-                    <div className="flex flex-col gap-4">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-white text-[22px] font-bold">Mis Actividades</h2>
-                            <button
-                                className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
-                                onClick={() => setShowCreateActivity(!showCreateActivity)}
-                            >
-                                {showCreateActivity ? 'Cancelar' : '+ Nueva Actividad'}
-                            </button>
-                        </div>
-                        {showCreateActivity && (
-                            <form onSubmit={handleCreateActivity} className="bg-[#233c48] p-4 rounded-lg border border-[#2d4a58] flex gap-2">
-                                <input
-                                    type="text"
-                                    value={newActivityName}
-                                    onChange={(e) => setNewActivityName(e.target.value)}
-                                    placeholder="Nombre de la actividad..."
-                                    className="flex-1 bg-[#1e343f] text-white border border-[#2d4a58] rounded px-3 py-2 outline-none focus:border-primary"
-                                />
-                                <button type="submit" className="bg-success hover:bg-success/90 text-black font-bold px-4 py-2 rounded">Guardar</button>
-                            </form>
-                        )}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {activities.map((activity) => (
-                                <div key={activity.id} className="bg-[#233c48] p-4 rounded-lg border border-white/5 shadow-sm flex justify-between items-center">
-                                    <h3 className="text-white font-bold text-lg">{activity.name}</h3>
-                                    <button
-                                        onClick={() => logAction(activity.id)}
-                                        className="bg-[#2d4a58] hover:bg-primary/50 text-white text-xs px-3 py-1 rounded transition-colors flex items-center gap-1"
-                                    >
-                                        <span className="material-symbols-outlined text-[14px]">add_circle</span> Registrar
-                                    </button>
+                    <div className="flex gap-3">
+                        <button className="flex-1 md:flex-none h-11 px-6 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                            Nueva Apuesta
+                        </button>
+                    </div>
+                </header>
+
+                {/* Primary Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                    <StatCard
+                        title="Ratio de Victorias"
+                        value={`${stats.won}W - ${stats.lost}L`}
+                        subtitle={`${Math.round((stats.won / (stats.won + stats.lost)) * 100)}% de efectividad`}
+                        icon="trending_up"
+                        color="text-success"
+                    />
+                    <StatCard
+                        title="Total Pagado"
+                        value={stats.moneyPaid}
+                        subtitle="En apuestas ganadas"
+                        icon="payments"
+                        color="text-blue-400"
+                    />
+                    <StatCard
+                        title="Total Perdido"
+                        value={stats.moneyLost}
+                        subtitle="En apuestas resueltas"
+                        icon="trending_down"
+                        color="text-red-400"
+                    />
+                    <StatCard
+                        title="Percentil Global"
+                        value={`Top ${100 - stats.percentile}%`}
+                        subtitle={`Mejor que el ${stats.percentile}%`}
+                        icon="military_tech"
+                        color="text-yellow-400"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left & Middle: Detailed Breakdown & History */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Balance Breakdown Section */}
+                        <section className="bg-[#111c22] border border-[#233c48] rounded-2xl p-6 shadow-xl">
+                            <h3 className="text-white font-bold mb-6 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">account_balance</span>
+                                Desglose de Saldos
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="p-4 rounded-xl bg-[#0d151a] border border-[#233c48] flex flex-col gap-1">
+                                    <span className="text-[11px] text-[#92b7c9] font-bold uppercase tracking-widest">Por Cobrar (Receivable)</span>
+                                    <span className="text-xl font-black text-green-400">{stats.receivable}</span>
+                                    <p className="text-[10px] text-[#92b7c9]">Dinero que amigos te deben</p>
                                 </div>
-                            ))}
-                        </div>
+                                <div className="p-4 rounded-xl bg-[#0d151a] border border-[#233c48] flex flex-col gap-1">
+                                    <span className="text-[11px] text-[#92b7c9] font-bold uppercase tracking-widest">Por Pagar (Payable)</span>
+                                    <span className="text-xl font-black text-red-400">{stats.payable}</span>
+                                    <p className="text-[10px] text-[#92b7c9]">Dinero que debes cancelar</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Recent History Table */}
+                        <section className="bg-[#111c22] border border-[#233c48] rounded-2xl overflow-hidden shadow-xl">
+                            <div className="p-6 border-b border-[#233c48] flex justify-between items-center">
+                                <h3 className="text-white font-bold">Historial de Apuestas</h3>
+                                <button className="text-xs text-primary font-bold hover:underline">Ver Todo</button>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="bg-[#0d151a] text-[#92b7c9] text-[10px] uppercase tracking-widest font-black">
+                                            <th className="px-6 py-4">Evento / Mercado</th>
+                                            <th className="px-6 py-4">Contraparte</th>
+                                            <th className="px-6 py-4">Monto</th>
+                                            <th className="px-6 py-4">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[#233c48]">
+                                        {betHistory.map(bet => (
+                                            <tr key={bet.id} className="hover:bg-[#1a282f] transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-white font-bold text-sm">{bet.event}</span>
+                                                        <span className="text-[10px] text-[#92b7c9]">{bet.date}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="text-[#92b7c9] text-sm">{bet.counterparty}</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="text-white font-bold text-sm">{bet.amount}</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <StatusBadge status={bet.status} />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
                     </div>
 
-                    <div className="mt-4 flex flex-col gap-4">
-                        <h3 className="text-white text-[18px] font-bold">Actividad Reciente</h3>
-                        <div className="rounded-xl bg-[#233c48] p-4 border border-white/5">
-                            <div className="relative pl-4 border-l border-[#2d4a58] space-y-6">
-                                {actions.length === 0 ? (
-                                    <p className="text-[#92b7c9] text-sm">No hay actividad reciente.</p>
-                                ) : actions.map((action) => (
-                                    <div key={action.id} className="relative">
-                                        <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-[#233c48]"></div>
-                                        <p className="text-sm text-[#92b7c9]">
-                                            <span className="font-bold text-white">Completado:</span> {action.activities?.name || 'Actividad desconocida'}
-                                        </p>
-                                        <p className="text-xs text-[#92b7c9] mt-1">{new Date(action.completed_at).toLocaleString()}</p>
-                                    </div>
-                                ))}
+                    {/* Right: Risk & Comparison */}
+                    <div className="space-y-8">
+                        {/* Risk Score Component */}
+                        <section className="bg-[#111c22] border border-[#233c48] rounded-2xl p-6 shadow-xl flex flex-col items-center text-center">
+                            <h3 className="text-white font-bold mb-6 self-start flex items-center gap-2">
+                                <span className="material-symbols-outlined text-red-500">warning</span>
+                                Perfil de Riesgo
+                            </h3>
+                            <div className="relative size-40 flex items-center justify-center">
+                                <svg className="size-full" viewBox="0 0 100 100">
+                                    <circle className="text-[#233c48] stroke-current" strokeWidth="8" fill="transparent" r="40" cx="50" cy="50" />
+                                    <circle className="text-orange-500 stroke-current" strokeWidth="8" strokeLinecap="round" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * stats.riskScore) / 100} fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)" />
+                                </svg>
+                                <div className="absolute flex flex-col items-center">
+                                    <span className="text-3xl font-black text-white">{stats.riskScore}</span>
+                                    <span className="text-[9px] text-[#92b7c9] font-bold uppercase tracking-widest">Moderado</span>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                            <p className="text-[#92b7c9] text-xs mt-6 leading-relaxed">
+                                Tu patrón de apuestas indica un riesgo moderado. Tienes un buen balance entre seguridad y ganancias.
+                            </p>
+                        </section>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="flex flex-col gap-2 rounded-lg p-6 bg-[#233c48] border border-white/5 shadow-lg">
-                            <div className="flex justify-between items-start">
-                                <p className="text-[#92b7c9] text-sm font-medium">Balance Total</p>
-                                <span className="material-symbols-outlined text-primary text-[20px]">account_balance_wallet</span>
-                            </div>
-                            <p className="text-white text-2xl font-bold">S/ 0.00</p>
-                            <p className="text-[#0bda57] text-sm font-medium flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">trending_up</span> +0.0%</p>
-                        </div>
-                        {/* Other stats preserved but reset/static for now */}
+                        {/* Social Comparison */}
+                        <section className="bg-gradient-to-br from-primary/20 to-[#111c22] border border-primary/20 rounded-2xl p-6 shadow-xl">
+                            <h3 className="text-white font-bold mb-4">Vs. Comunidad</h3>
+                            <ul className="space-y-4">
+                                <ComparisonRow label="Racha de Ganadas" userValue="5" avgValue="2" />
+                                <ComparisonRow label="Apuesta Promedio" userValue="S/ 65" avgValue="S/ 42" />
+                                <ComparisonRow label="Velocidad Cobro" userValue="Rápida" avgValue="Media" />
+                            </ul>
+                            <button className="w-full mt-6 py-2 rounded-lg border border-primary/30 text-primary text-xs font-bold hover:bg-primary/10 transition-colors">
+                                Ver Clasificación Completa
+                            </button>
+                        </section>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 };
+
+// Sub-components for cleaner code
+const StatCard = ({ title, value, subtitle, icon, color }: any) => (
+    <div className="bg-[#111c22] border border-[#233c48] rounded-2xl p-6 shadow-lg hover:border-primary/30 transition-all group">
+        <div className="flex justify-between items-start mb-4">
+            <span className={`material-symbols-outlined ${color} group-hover:scale-110 transition-transform`}>{icon}</span>
+            <span className="material-symbols-outlined text-[#233c48] text-xs">info</span>
+        </div>
+        <p className="text-[#92b7c9] text-xs font-bold uppercase tracking-widest mb-1">{title}</p>
+        <p className="text-white text-2xl font-black mb-1">{value}</p>
+        <p className="text-[#92b7c9] text-[10px]">{subtitle}</p>
+    </div>
+);
+
+const StatusBadge = ({ status }: { status: string }) => {
+    const styles = {
+        winner: 'bg-green-500/20 text-green-400 border-green-500/30',
+        loser: 'bg-red-500/20 text-red-400 border-red-500/30',
+        pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+    }[status as keyof typeof styles] || '';
+
+    const labels = { winner: 'Ganada', loser: 'Perdida', pending: 'Pendiente' }[status as keyof typeof labels] || status;
+
+    return (
+        <span className={`px-2 py-1 rounded-md text-[10px] font-black border uppercase tracking-widest ${styles}`}>
+            {labels}
+        </span>
+    );
+};
+
+const ComparisonRow = ({ label, userValue, avgValue }: any) => (
+    <div className="flex flex-col gap-1">
+        <div className="flex justify-between text-[11px] font-bold">
+            <span className="text-[#92b7c9]">{label}</span>
+            <span className="text-white">{userValue} <span className="text-[#92b7c9] font-normal">/ {avgValue}</span></span>
+        </div>
+        <div className="h-1 bg-[#0d151a] rounded-full overflow-hidden">
+            <div className="h-full bg-primary w-[70%]"></div>
+        </div>
+    </div>
+);
 
 export default DashboardPage;

@@ -2,9 +2,11 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import MarketCard from '../components/MarketCard';
 import { Market } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 const LandingPage = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     const markets: Market[] = [
         {
@@ -59,8 +61,8 @@ const LandingPage = () => {
                             <Link className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" to="/leaderboard">Clasificación</Link>
                         </nav>
                         <div className="flex items-center gap-4">
-                            <Link to="/register" className="hidden sm:flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
-                                Conectar Billetera
+                            <Link to={user ? "/dashboard" : "/register"} className="hidden sm:flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
+                                {user ? "Ir al Panel" : "Conectar Billetera"}
                             </Link>
                             <button className="flex md:hidden items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
                                 <span className="material-symbols-outlined">menu</span>
@@ -198,8 +200,8 @@ const LandingPage = () => {
                             Únete a miles de peruanos que están prediciendo las noticias en lugar de solo leerlas.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link to="/register" className="w-full sm:w-auto h-14 px-8 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all flex items-center justify-center">
-                                Conectar Billetera para Empezar
+                            <Link to={user ? "/dashboard" : "/register"} className="w-full sm:w-auto h-14 px-8 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all flex items-center justify-center">
+                                {user ? "Ir al Panel para Empezar" : "Conectar Billetera para Empezar"}
                             </Link>
                             <Link to="/dashboard" className="w-full sm:w-auto h-14 px-8 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center">
                                 Ver Todos los Mercados

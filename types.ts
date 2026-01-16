@@ -77,3 +77,23 @@ export interface Action {
     completed_at: string;
     created_at: string;
 }
+
+export interface BetHistoryItem {
+    id: string;
+    event: string;
+    counterparty: string;
+    amount: string;
+    status: 'winner' | 'loser' | 'pending';
+    date: string;
+}
+
+export interface DashboardStats {
+    won: number;
+    lost: number;
+    moneyLost: string;
+    moneyPaid: string;
+    payable: string;
+    receivable: string;
+    percentile: number;
+    riskScore: number;
+}
