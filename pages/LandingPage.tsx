@@ -56,7 +56,7 @@ const LandingPage = () => {
                             <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">tapuesto.ai</h2>
                         </div>
                         <nav className="hidden md:flex flex-1 justify-center items-center gap-8">
-                            <Link className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" to="/dashboard">Mercados</Link>
+                            <Link className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" to="/mercados">Mercados</Link>
                             <a className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" href="#">Nosotros</a>
                             <Link className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" to="/leaderboard">Clasificación</Link>
                         </nav>
