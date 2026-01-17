@@ -64,7 +64,7 @@ const DashboardPage = () => {
                 </div>
 
                 <nav className="hidden lg:flex items-center gap-8">
-                    <Link to="/panel" className="text-white hover:text-primary transition-colors text-sm font-medium border-b-2 border-primary pb-0.5">Mis Apuestas</Link>
+                    <Link to="/dashboard" className="text-white hover:text-primary transition-colors text-sm font-medium border-b-2 border-primary pb-0.5">Mis Apuestas</Link>
                     <Link to="/leaderboard" className="text-[#92b7c9] hover:text-white transition-colors text-sm font-medium">Clasificación</Link>
                     <Link to="/mercados" className="text-[#92b7c9] hover:text-white transition-colors text-sm font-medium">Mercados</Link>
                 </nav>
@@ -95,7 +95,7 @@ const DashboardPage = () => {
                     </div>
 
                     <div className="flex gap-3">
-                        <button className="flex-1 md:flex-none h-11 px-6 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                        <button onClick={() => navigate('/create')} className="flex-1 md:flex-none h-11 px-6 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
                             <span className="material-symbols-outlined text-[20px]">add_circle</span>
                             Nueva Apuesta
                         </button>

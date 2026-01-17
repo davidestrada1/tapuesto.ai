@@ -13,6 +13,7 @@ import InviteLandingPage from './pages/InviteLandingPage';
 import SettleBetPage from './pages/SettleBetPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
+import MarketsPage from './pages/MarketsPage';
 
 import { AuthProvider } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
@@ -30,6 +31,7 @@ const App = () => {
                     <Route path="/challenge" element={<ChallengePage />} />
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/leaderboard" element={<LeaderboardPage />} />
+                    <Route path="/mercados" element={<MarketsPage />} />
 
                     {/* New Routes */}
                     <Route path="/share/:id" element={<ShareMarketPage />} />
