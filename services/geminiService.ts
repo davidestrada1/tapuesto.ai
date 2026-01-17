@@ -10,7 +10,7 @@ export const analyzeMarketTopic = async (topic: string): Promise<AIAnalysisResul
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-3-flash-preview",
+            model: "gemini-1.5-flash",
             contents: `Analiza el siguiente tema para un mercado de predicciones en Perú: "${topic}".
             
             Tu tarea es:
@@ -28,11 +28,11 @@ export const analyzeMarketTopic = async (topic: string): Promise<AIAnalysisResul
         });
 
         const text = response.text || "";
-        
+
         // Extract sources from grounding metadata
         const sources: GroundingSource[] = [];
         const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-        
+
         if (groundingChunks) {
             groundingChunks.forEach((chunk: any) => {
                 if (chunk.web?.uri && chunk.web?.title) {
@@ -57,11 +57,11 @@ export const analyzeMarketTopic = async (topic: string): Promise<AIAnalysisResul
                 reasoning = line.replace(/\*\*Razonamiento:\*\*/g, '').replace(/Razonamiento:/g, '').trim();
             }
         });
-        
+
         // Fallback if parsing fails but text exists
         if (suggestion === "No se pudo generar una pregunta." && text.length > 10) {
-             suggestion = text; // Just return the whole text if parsing fails to be safe
-             reasoning = "Ver detalles arriba.";
+            suggestion = text; // Just return the whole text if parsing fails to be safe
+            reasoning = "Ver detalles arriba.";
         }
 
         return {
