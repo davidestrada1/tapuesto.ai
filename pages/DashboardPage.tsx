@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Header from '../components/Header';
 import { supabase } from '../services/supabaseClient';
 import { BetHistoryItem, DashboardStats } from '../types';
 
 const DashboardPage = () => {
     const navigate = useNavigate();
-    const { user, signOut } = useAuth();
+    const { user, loading: authLoading, signOut } = useAuth();
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!authLoading && !user) {
+            navigate('/register');
+        }
+    }, [user, authLoading, navigate]);
 
     // Mock data for betting metrics
     const [stats] = useState<DashboardStats>({
@@ -55,32 +62,7 @@ const DashboardPage = () => {
     return (
         <div className="relative flex min-h-screen w-full flex-col bg-[#0d151a]">
             {/* Header */}
-            <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#233c48] bg-[#111c22]/95 backdrop-blur-md px-6 md:px-10 py-3">
-                <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-                    <div className="flex items-center justify-center size-8 rounded bg-primary/10 text-primary">
-                        <span className="material-symbols-outlined">analytics</span>
-                    </div>
-                    <h2 className="text-white text-lg font-bold">tapuesto.ai</h2>
-                </div>
-
-                <nav className="hidden lg:flex items-center gap-8">
-                    <Link to="/dashboard" className="text-white hover:text-primary transition-colors text-sm font-medium border-b-2 border-primary pb-0.5">Mis Apuestas</Link>
-                    <Link to="/leaderboard" className="text-[#92b7c9] hover:text-white transition-colors text-sm font-medium">Clasificación</Link>
-                    <Link to="/mercados" className="text-[#92b7c9] hover:text-white transition-colors text-sm font-medium">Mercados</Link>
-                </nav>
-
-                <div className="flex items-center gap-4">
-                    <div className="hidden md:flex flex-col items-end mr-2">
-                        <span className="text-[10px] uppercase tracking-wider text-[#92b7c9] font-bold">Balance Disponible</span>
-                        <span className="text-sm font-black text-white">S/ 210.00</span>
-                    </div>
-                    <button onClick={handleSignOut} className="text-[#92b7c9] hover:text-white text-sm transition-colors">Salir</button>
-                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20 cursor-pointer hover:border-primary/50 transition-all"
-                        onClick={() => navigate('/profile')}
-                        style={{ backgroundImage: `url(${profile?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'})` }}>
-                    </div>
-                </div>
-            </header>
+            <Header />
 
             <main className="flex-1 px-4 py-8 md:px-10 lg:px-20 max-w-[1400px] mx-auto w-full">
                 <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">

@@ -1,26 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
 
 const LeaderboardPage = () => {
     const navigate = useNavigate();
     return (
         <div className="bg-background-light dark:bg-background-dark font-display antialiased text-slate-900 dark:text-white min-h-screen flex flex-col">
-            <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-gray-200 dark:border-b-[#233c48] bg-white dark:bg-[#111c22] px-6 md:px-10 py-3">
-                <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate('/')}>
-                    <div className="size-6 text-primary"><span className="material-symbols-outlined">analytics</span></div>
-                    <h2 className="text-lg font-bold">tapuesto.ai</h2>
-                </div>
-                <div className="hidden md:flex flex-1 justify-end gap-8">
-                    <nav className="flex items-center gap-9">
-                        <Link to="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">Inicio</Link>
-                        <Link to="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">Mercados</Link>
-                        <span className="text-primary text-sm font-bold">Tabla de Líderes</span>
-                    </nav>
-                    <div className="flex items-center gap-4">
-                        <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 ring-2 ring-primary/20 cursor-pointer" onClick={() => navigate('/profile')} style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDnY5fUlbf3SMBhYPtAdMrY3IHTBymBoUaeZvCYaxh0L2f5oU7PGncdN9ApN3LbpnJ6b-YExDMI7feUdY4cTZu8lOtiFUK_b4OGIUOKKYRGyYZZc99Tc2RpKqCQFQp67ezngUxm6uaOCpd3JdOTochGqqDMF5ijC_cu-txzPKGYntXzrjfvqX7XDHeyVRFs3OI3zdE6zbHzrLPUHvcM60BmDJ10vW5O0ZVjnMCAUhVyXA5ezeWMgo3QWdXa0ymS5x-tye9oCizMS8I")' }}></div>
-                    </div>
-                </div>
-            </header>
+            <Header />
             <main className="flex-grow flex flex-col items-center w-full">
                 <div className="w-full max-w-[1200px] px-4 md:px-10 py-6 md:py-10">
                     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 to-transparent p-8 md:p-12 text-center border border-gray-200 dark:border-[#233c48]">

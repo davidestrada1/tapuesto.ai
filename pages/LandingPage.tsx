@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import MarketCard from '../components/MarketCard';
+import Header from '../components/Header';
 import { Market } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 const LandingPage = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
 
     const markets: Market[] = [
         {
@@ -46,31 +47,7 @@ const LandingPage = () => {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
-                <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 items-center justify-between">
-                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-                            <div className="flex items-center justify-center size-8 rounded bg-primary/10 text-primary">
-                                <span className="material-symbols-outlined">analytics</span>
-                            </div>
-                            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">tapuesto.ai</h2>
-                        </div>
-                        <nav className="hidden md:flex flex-1 justify-center items-center gap-8">
-                            <Link className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" to="/mercados">Mercados</Link>
-                            <a className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" href="#">Nosotros</a>
-                            <Link className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" to="/leaderboard">Clasificación</Link>
-                        </nav>
-                        <div className="flex items-center gap-4">
-                            <Link to={user ? "/dashboard" : "/register"} className="hidden sm:flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
-                                {user ? "Ir al Panel" : "Conectar Billetera"}
-                            </Link>
-                            <button className="flex md:hidden items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
-                                <span className="material-symbols-outlined">menu</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Header />
             <main>
                 <section className="relative pt-12 pb-20 lg:pt-24 lg:pb-32 overflow-hidden">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-primary/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
@@ -201,7 +178,7 @@ const LandingPage = () => {
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link to={user ? "/dashboard" : "/register"} className="w-full sm:w-auto h-14 px-8 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all flex items-center justify-center">
-                                {user ? "Ir al Panel para Empezar" : "Conectar Billetera para Empezar"}
+                                {loading ? "Cargando..." : (user ? "Ir al Panel para Empezar" : "Conectar Billetera para Empezar")}
                             </Link>
                             <Link to="/dashboard" className="w-full sm:w-auto h-14 px-8 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center">
                                 Ver Todos los Mercados
